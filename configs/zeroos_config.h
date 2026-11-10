@@ -1,0 +1,13 @@
+#ifndef ZEROOS_CONFIG_H
+#define ZEROOS_CONFIG_H
+
+#define ZEROOS_NAME "ZeroOS"
+#define ZEROOS_VERSION "0.1.0"
+#define ZEROOS_ARCH "ARM64"
+#define ZEROOS_TARGET "Xiaomi Redmi 14C"
+#define ZEROOS_KERNEL "Linux"
+#define ZEROOS_PRIMARY_COLOR "#00D9FF"
+#define ZEROOS_BOOT_SPLASH "ZeroOS"
+#define ZEROOS_MAX_SERVICES 16
+
+#endif
