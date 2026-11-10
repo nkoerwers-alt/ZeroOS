@@ -24,18 +24,31 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android command line tools
+      - name: Install Android SDK
         shell: bash
         run: |
           set -eux
+
+          export ANDROID_HOME="$HOME/android-sdk"
+          export PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools"
+
+          mkdir -p "$ANDROID_HOME"
           mkdir -p "$ANDROID_HOME/cmdline-tools"
+
           cd "$ANDROID_HOME/cmdline-tools"
           curl -L -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
           unzip -q cmdline-tools.zip
           rm -f cmdline-tools.zip
-          mv cmdline-tools latest
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+
+          if [ -d "$ANDROID_HOME/cmdline-tools/cmdline-tools" ]; then
+            mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+          fi
+
+          set +e
+          yes >/dev/null 2>&1 | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+          set -e
+
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;34.0.0"
@@ -45,9 +58,13 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Generate Gradle wrapper
+        working-directory: android/ZeroOSApp
+        run: gradle wrapper --stacktrace
+
       - name: Build debug APK
         working-directory: android/ZeroOSApp
-        run: ./gradlew assembleDebug
+        run: ./gradlew :app:assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -55,3 +72,4 @@ jobs:
           name: ZeroOS-debug-apk
           path: android/ZeroOSApp/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+          retention-days: 7
