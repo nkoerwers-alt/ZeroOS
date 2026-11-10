@@ -1,2 +1,3 @@
 # ZeroOS
-ZeroOS private repository
+
+Project scaffold for ZeroOS.
